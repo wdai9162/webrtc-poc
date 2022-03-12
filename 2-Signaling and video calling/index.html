@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>WebSocket Chat</title>
+    <link href="./style.css" rel="stylesheet"> 
+    <script type="text/javascript" src="./ws_client.js"></script>
+</head>
+
+<body>
+    <p>Simple chat system implemented using WebSockets. It works by sending Messages in JSON back and forth with the WS server.</p>
+    
+    <p>Enter a username: <input id="name" type="text" maxlength="12" placeholder="Your name">
+    <button id="login">Log in</button> 
+    
+    <table border="10" width="100%">
+        <tr height="100%">
+            <td width="120px" align="top" border="1" height="100%">
+                <div id="userlistbox" style="border: 1px solid black; width:100%; height:100%;"></div>
+            </td>
+    
+            <td>
+                <iframe width="100%" height="400px" id="chatbox""></iframe>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <p>Chat: <input id="text" type="text" name="text" size="80" maxlength="256" placeholder="Chat with us!" disabled>
+                <button id="chat" disabled>Send</button>
+            </td>
+            </td>
+        </tr>
+    </table>
+  </body>
+</html>

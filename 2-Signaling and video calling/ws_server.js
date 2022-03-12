@@ -56,7 +56,7 @@ wsServer.on('request', (wsReq) => {
     }
 
     //Accept the WS request and create WS connection object
-    var wsConnection = wsReq.accept(null,wsReq.origin);
+    var wsConnection = wsReq.accept(null,wsReq.origin)
     console.log((new Date()) + " Connection accepted. Connected with remote peer " + wsConnection.socket.remoteAddress + ' ' + wsReq.remoteAddress);
     connectionArray.push(wsConnection);
 
@@ -74,7 +74,29 @@ wsServer.on('request', (wsReq) => {
         console.log((new Date()) + ": Message received from ", wsConnection.socket.remoteAddress)
 
         if (message.type === 'utf8'){
-            console.log((new Date()) + ": " + message);
+            console.log((new Date()) + ": " + message.utf8Data);
+
+            var msg = JSON.parse(message.utf8Data);
+
+            switch(msg.type) {
+                case "username":
+                    var res = {
+                        type: "username",
+                        message: "username received!"
+                    }
+                    wsConnection.sendUTF(JSON.stringify(res));
+                    break;
+
+                case "message":
+                    var res = {
+                        type: "message",
+                        message: "message received!"
+                    }
+                    wsConnection.sendUTF(JSON.stringify(res));
+                    break;
+            }
+
+
         }
 
 
