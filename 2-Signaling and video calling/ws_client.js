@@ -15,6 +15,8 @@
 
         login = document.getElementById('login');
         chat = document.getElementById('chat');
+        var chatbox = document.getElementById("chatbox").contentDocument;
+
         login.addEventListener('click', () => {
             
             
@@ -32,18 +34,30 @@
                 document.getElementById("chat").disabled = false;
                 console.log((new Date()) + ": WebSocket conneciton is open, currently in " + wsConnection.readyState + " state.")
                 wsSend(userName,"username",wsConnection)
+                //disable the login to avoid multiple connections to be established 
+                document.getElementById("name").disabled = true;
+                document.getElementById("login").disabled = true;
             } )
 
 
             //create event listener for 'message' to handle inbound WS messages
             wsConnection.addEventListener('message', (event) => {
-                console.log(event.data);
+                    console.log((new Date()) + ": " + event.data);
+                    var msg = JSON.parse(event.data);
+                    switch(msg.type){
+                    case "chat-received":
+                        var chattext = new Date().toLocaleTimeString() + " <b> " + msg.userName + "</b>: " + msg.data + "<br>";
+                        chatbox.write(chattext);
+                        console.log(chatbox)
+                        break; 
+                 }
+                
             })
 
-
-            //create event listener for send button and dispatch the chat message
+            //create event listener for send button and dispatch the chat text
             chat.addEventListener('click', () => {
-                wsSend(document.getElementById("text").value,"message",wsConnection);
+                wsSend(document.getElementById("text").value, "chat-text", wsConnection);
+                document.getElementById("text").value = "";
             })
             
         })
@@ -52,15 +66,12 @@
     function wsSend(data, type, connection){
 
         var message = {
-            text: data,
+            data: data,
             type: type,
             id: clientID,
             date: Date.now(),
-            misc: "idd message"
         }
-
         connection.send(JSON.stringify(message));
-
     }
 
     // function handleKey(evt) {

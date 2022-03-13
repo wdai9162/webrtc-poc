@@ -72,7 +72,6 @@ wsServer.on('request', (wsReq) => {
     //WebSocket Connection listens on 'message' event and create a WsMessage handler
     wsConnection.on('message', (message) => {
         console.log((new Date()) + ": Message received from ", wsConnection.socket.remoteAddress)
-
         if (message.type === 'utf8'){
             console.log((new Date()) + ": " + message.utf8Data);
 
@@ -82,26 +81,31 @@ wsServer.on('request', (wsReq) => {
                 case "username":
                     var res = {
                         type: "username",
-                        message: "username received!"
+                        data: msg.data
                     }
+                    wsConnection.userName = msg.data;
                     wsConnection.sendUTF(JSON.stringify(res));
                     break;
 
-                case "message":
+                case "chat-text":
+                    console.log(msg);
                     var res = {
-                        type: "message",
-                        message: "message received!"
+                        type: "chat-received",
+                        userName: wsConnection.userName,
+                        data: msg.data
                     }
                     wsConnection.sendUTF(JSON.stringify(res));
                     break;
             }
-
-
         }
-
-
-
     })
+
+
+    //store logged in user 
+
+    //allow multiple connection 
+
+    //distribute messages 
 
 })
 
