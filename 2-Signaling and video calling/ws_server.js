@@ -109,7 +109,6 @@ wsServer.on('request', (wsReq) => {
 
 })
 
-
 //check WS origin 
 function originIsAllowed(origin) {
     return true; 
