@@ -32,10 +32,10 @@ socket.emit("broadcaster");
 .catch(error => console.error(error));
 
 //Initialize RTCPeerConnection on viewer request
-socket.on("viewer", (id) => {
+socket.on("viewer", (viewerId) => {
     console.log("viewer event, viewer ID received")
     const peerConnection = new RTCPeerConnection(config);
-    peerConnections[id] = peerConnection;  
+    peerConnections[viewerId] = peerConnection;  
 
     //add broadcaster video track to the peerConnection track 
     let stream = video.srcObject;
@@ -43,28 +43,54 @@ socket.on("viewer", (id) => {
         peerConnection.addTrack(track,stream)
     })
 
-    //handle the icecandidate event. This happens whenever the local ICE agent needs to deliver a message to the other peer through the signaling server. 
-    peerConnection.onicecandidate = function(event) {
-        if (event.candidate) {
-            socket.emit("candidate", id, event.candidate);  //????
-        }
-    }
 
     //create peerConnection offer
     peerConnection.createOffer()
     .then((sdp) => {
         peerConnection.setLocalDescription(sdp)
-        .then(() => {
-            socket.emit("offer", id, peerConnection.localDescription)
+        .then(() => { 
+            socket.emit("offer", viewerId, peerConnection.localDescription)
+            console.log("sending offer")
         })
+
     })
+
+    //handle the icecandidate event. This happens whenever the local ICE agent needs to deliver a message to the other peer through the signaling server. 
+    peerConnection.onicecandidate = function(event) {
+        if (event.candidate) {
+            console.log("onicecandidate event")
+            socket.emit("candidate", viewerId, event.candidate);  //???? viewer/candidate ID? 
+        }
+    }
+
+    peerConnection.onicegatheringstatechange = event => {
+        console.log(peerConnection.iceGatheringState)
+    }
+
+    peerConnection.onicegatheringstatechange = event => {
+        console.log(peerConnection.iceGatheringState)
+    }
+    peerConnection.onconnectionstatechange = event => { console.log("onconnectionstatechange" + peerConnection.connectionState ) };
+    peerConnection.iceconnectionstatechange   = event => { console.log("iceconnectionstatechange  " + peerConnection.iceConnectionSt  ) };
 
     socket.on("answer", (id,description) => {
-        peerConnections[id].setRemoteDescription(description);
+        console.log("answer event: " + socket.id)  
+        console.log("broadcasterId: " + id)
+        console.log("viewerDescription: " + description)
+        console.log('typeof viewerDescription: ', typeof description)
+        peerConnections[id].setRemoteDescription(description)
+        .catch(error => console.error(error))
+        console.log(peerConnections[id])
     })
+    
 
     socket.on("candidate", (id, candidate) => {
+        console.log("candidate event: " + id + candidate)
+
+        console.log(peerConnections[id])
         peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
+        console.log("new RTCIceCandidate(candidate)")
+        console.log(peerConnections[id])
     })
 
 })

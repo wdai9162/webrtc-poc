@@ -12,14 +12,14 @@ const config = {
 const socket = io.connect(window.location.origin);
 const video = document.querySelector("video");
 
-socket.on("offer", (id, description) => {
+socket.on("offer", (broadcasterId, broadcasterDescription) => {
     peerConnection = new RTCPeerConnection(config);
     peerConnection
-    .setRemoteDescription(description)
+    .setRemoteDescription(broadcasterDescription)
     .then(() => peerConnection.createAnswer())
     .then(sdp => peerConnection.setLocalDescription(sdp))
     .then(() => {
-      socket.emit("answer", id, peerConnection.localDescription);
+      socket.emit("answer", broadcasterId, peerConnection.localDescription);
     });
 
     peerConnection.ontrack = event => {
@@ -28,15 +28,17 @@ socket.on("offer", (id, description) => {
 
     peerConnection.onicecandidate = event => {
     if (event.candidate) {
-        socket.emit("candidate", id, event.candidate);
+        console.log("candidate event: " + event.candidate)
+        socket.emit("candidate", broadcasterId, event.candidate);
     }
     };
 
 })
 
 socket.on("candidate", (id, candidate) => {
+  console.log("received candidate on socket: " + candidate)
     peerConnection
-      .addIceCandidate(new RTCIceCandidate(candidate))
+      .addIceCandidate(new RTCIceCandidate(candidate))    //最后一步 adds this new remote candidate to the RTCPeerConnection's remote description, which describes the state of the remote end of the connection. 
       .catch(e => console.error(e));
   });
   
