@@ -92,11 +92,14 @@ class VideoTransformTrack(MediaStreamTrack):
             new_frame.time_base = frame.time_base
             return new_frame
         elif self.transform == "sr":
+            sr = cv2.dnn_superres.DnnSuperResImpl_create()
+            sr.readModel("model/ESPCN_x4.pb")
+            sr.setModel("espcn", 4)
+
             # super resolves image
             img = frame.to_ndarray(format="bgr24")
-            rows, cols, _ = img.shape
-            img = cv2.resize(img, (1000,1000), interpolation = cv2.INTER_AREA)
-
+            img = sr.upsample(img)
+            
             # rebuild a VideoFrame, preserving timing information
             new_frame = VideoFrame.from_ndarray(img, format="bgr24")
             new_frame.pts = frame.pts
