@@ -28,10 +28,8 @@ sr.setModel(modelName, modelScale)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs =  cv2.VideoCapture(0)
+vs =  VideoStream(src=0).start()
 time.sleep(2.0)
-if not vs.isOpened():
-    raise IOError("Cannot open webcam")
 
 # loop over the frames from the video stream
 while True:
