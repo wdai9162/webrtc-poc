@@ -91,6 +91,17 @@ class VideoTransformTrack(MediaStreamTrack):
             new_frame.pts = frame.pts
             new_frame.time_base = frame.time_base
             return new_frame
+        elif self.transform == "sr":
+            # super resolves image
+            img = frame.to_ndarray(format="bgr24")
+            rows, cols, _ = img.shape
+            img = cv2.resize(img, (1000,1000), interpolation = cv2.INTER_AREA)
+
+            # rebuild a VideoFrame, preserving timing information
+            new_frame = VideoFrame.from_ndarray(img, format="bgr24")
+            new_frame.pts = frame.pts
+            new_frame.time_base = frame.time_base
+            return new_frame
         else:
             return frame
 
